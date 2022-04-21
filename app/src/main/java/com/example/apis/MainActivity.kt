@@ -1,16 +1,15 @@
 package com.example.apis
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.lifecycle.LiveData
-import androidx.room.Room
 import com.example.apis.databinding.ActivityMainBinding
-import retrofit2.Call
-import retrofit2.Callback
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-
 class MainActivity : AppCompatActivity() {
 
 
@@ -18,14 +17,45 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mRetrofit: Retrofit
     private lateinit var a: LiveData<Int>
 
+    var array: Array<String> = arrayOf("nemo", "anna", "elsa", "arial", "alis", "dorry")
+    lateinit var word:String
+
+
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        val db = Room.databaseBuilder(applicationContext,)
 
-//
+        mBinding.find.setOnClickListener {
+
+            word = mBinding.wordEditText.text.toString()
+
+            Observable.just(array,word)
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                {
+                    for(i in array){
+                        if(i == word){
+                            mBinding.result.text = i
+                            break
+                        }
+                        mBinding.result.text = "Error 404"
+                    }
+                },
+                {
+                    Toast.makeText(this,"something went wrong",Toast.LENGTH_LONG).show()
+                },
+                {
+                    Toast.makeText(this,"process successful completed",Toast.LENGTH_LONG).show()
+                })
+        }
+
+
+
 //        mRetrofit = Retrofit
 //            .Builder()
 //            .baseUrl("https://api.mulum.pk/")
@@ -46,5 +76,7 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        })
     }
+
+
 
 }
